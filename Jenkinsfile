@@ -14,8 +14,12 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'docker-compose up -d'
-                sh 'docker compose exec -T app curl -f http://localhost:3000 || exit 1'
+                sh '''
+                   docker-compose up -d
+                   docker-compose ps
+                   docker-compose logs app
+                   docker compose exec -T app curl -v http://localhost:3000 || exit 1
+                '''
             }
         }
 
