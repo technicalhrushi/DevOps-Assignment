@@ -37,13 +37,15 @@ pipeline {
 
         stage('Deploy to AWS') {
             steps {
-				withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-					sshagent(['aws-ec2-ssh']) {
-						sh '''
-							ssh -i Jenkins_EC2_Sing.pem ubuntu@13.229.251.34 << EOF
-								echo "$PASS" | docker login -u "$USER" --password-stdin
-
-								mkdir -p ~/devops-deploy && cd ~/devops-deploy
+	        withCredentials([
+                    usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS'),
+                    sshUserPrivateKey(credentialsId: 'aws-ec2-ssh', keyFileVariable: 'KEY')
+                ]) {
+                   sh '''
+                      chmod 600 "$KEY"
+                      ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@13.229.251.34 << EOF
+                           echo "$PASS" | docker login -u "$USER" --password-stdin
+                           mkdir -p ~/devops-deploy && cd ~/devops-deploy
 
                         cat > docker-compose.yml << EOL
 version: "3.8"
