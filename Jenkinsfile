@@ -48,7 +48,6 @@ echo "$PASS" | docker login -u "$USER" --password-stdin
 mkdir -p ~/devops-deploy && cd ~/devops-deploy
 
 cat > docker-compose.yml <<EOL
-version: "3.8"
 services:
   app:
     image: technicalhrushi/devops-app
