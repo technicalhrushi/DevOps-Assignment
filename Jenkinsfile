@@ -24,7 +24,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh '''
                     echo "$PASS" | docker login -u "$USER" --password-stdin
-                    docker tag devops-assignment_app $DOCKER_IMAGE
+                    docker tag kelpassignment-app $DOCKER_IMAGE
                     docker push $DOCKER_IMAGE
                     '''
                 }
