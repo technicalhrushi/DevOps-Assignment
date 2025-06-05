@@ -33,8 +33,61 @@ pipeline {
 
         stage('Deploy to AWS') {
             steps {
-                // Use ECS CLI, Helm for EKS, or SSH commands to deploy to EC2
-                echo 'Deploy step here...'
+                sshagent(['aws-ec2-ssh']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_PUBLIC_IP> << 'EOF'
+                        docker login -u technicalhrushi -p <YOUR_DOCKERHUB_PASSWORD>
+                        mkdir -p ~/devops-deploy && cd ~/devops-deploy
+
+                        cat > docker-compose.yml << EOL
+version: "3.8"
+services:
+  app:
+    image: technicalhrushi/devops-app
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=mydb
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=mydb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+volumes:
+  db_data:
+EOL
+
+                        mkdir -p nginx
+                        cat > nginx/default.conf << NGINX
+server {
+    listen 80;
+    location / {
+        proxy_pass http://app:3000;
+    }
+}
+NGINX
+
+                        docker compose down || true
+                        docker compose up -d
+                    EOF
+                    '''
+                }
             }
         }
     }
