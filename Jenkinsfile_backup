@@ -15,10 +15,10 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    docker-compose up -d
-                    docker-compose ps
-                    docker-compose logs app
-                    docker compose exec -T app curl -v http://localhost:3000 || exit 1
+                   docker-compose up -d
+                   docker-compose ps
+                   docker-compose logs app
+                   docker compose exec -T app curl -v http://localhost:3000 || exit 1
                 '''
             }
         }
@@ -27,9 +27,9 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh '''
-                        echo "$PASS" | docker login -u "$USER" --password-stdin
-                        docker tag kelpassignment-app $DOCKER_IMAGE
-                        docker push $DOCKER_IMAGE
+                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    docker tag kelpassignment-app $DOCKER_IMAGE
+                    docker push $DOCKER_IMAGE
                     '''
                 }
             }
@@ -37,17 +37,17 @@ pipeline {
 
         stage('Deploy to AWS') {
             steps {
-                withCredentials([
+	        withCredentials([
                     usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS'),
                     sshUserPrivateKey(credentialsId: 'aws-ec2-ssh', keyFileVariable: 'KEY')
                 ]) {
-                    sh '''
-                        chmod 600 "$KEY"
-                        ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@13.229.251.34 <<EOF
-echo "$PASS" | docker login -u "$USER" --password-stdin
-mkdir -p ~/devops-deploy && cd ~/devops-deploy
+                   sh '''
+                      chmod 600 "$KEY"
+                      ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@13.229.251.34 <<EOF
+                           echo "$PASS" | docker login -u "$USER" --password-stdin
+                           mkdir -p ~/devops-deploy && cd ~/devops-deploy
 
-cat > docker-compose.yml <<EOL
+                        cat > docker-compose.yml <<EOL
 version: "3.8"
 services:
   app:
@@ -81,8 +81,8 @@ volumes:
   db_data:
 EOL
 
-mkdir -p nginx
-cat > nginx/default.conf <<NGINX
+                        mkdir -p nginx
+                        cat > nginx/default.conf <<NGINX
 server {
     listen 80;
     location / {
@@ -91,12 +91,13 @@ server {
 }
 NGINX
 
-docker compose down || true
-docker compose up -d
-EOF
+                        docker compose down || true
+                        docker compose up -d
+                    EOF
                     '''
                 }
             }
         }
     }
 }
+
