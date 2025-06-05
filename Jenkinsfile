@@ -43,7 +43,7 @@ pipeline {
                 ]) {
                    sh '''
                       chmod 600 "$KEY"
-                      ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@13.229.251.34 << EOF
+                      ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@13.229.251.34 <<EOF
                            echo "$PASS" | docker login -u "$USER" --password-stdin
                            mkdir -p ~/devops-deploy && cd ~/devops-deploy
 
