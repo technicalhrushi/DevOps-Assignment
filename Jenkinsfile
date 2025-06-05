@@ -82,7 +82,7 @@ volumes:
 EOL
 
                         mkdir -p nginx
-                        cat > nginx/default.conf << NGINX
+                        cat > nginx/default.conf <<NGINX
 server {
     listen 80;
     location / {
