@@ -33,11 +33,13 @@ pipeline {
 
         stage('Deploy to AWS') {
             steps {
-                sshagent(['aws-ec2-ssh']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@<EC2_PUBLIC_IP> << 'EOF'
-                        docker login -u technicalhrushi -p <YOUR_DOCKERHUB_PASSWORD>
-                        mkdir -p ~/devops-deploy && cd ~/devops-deploy
+				withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+					sshagent(['aws-ec2-ssh']) {
+						sh '''
+							ssh -o StrictHostKeyChecking=no ubuntu@<EC2_PUBLIC_IP> << EOF
+								echo "$PASS" | docker login -u "$USER" --password-stdin
+
+								mkdir -p ~/devops-deploy && cd ~/devops-deploy
 
                         cat > docker-compose.yml << EOL
 version: "3.8"
