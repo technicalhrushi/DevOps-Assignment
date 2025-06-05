@@ -15,7 +15,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'docker-compose up -d'
-                sh 'sleep 10 && curl -f http://nginx || exit 1'
+                sh 'sleep 10 && curl -f http://app:3000 || exit 1'
             }
         }
 
