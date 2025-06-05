@@ -40,7 +40,7 @@ pipeline {
 				withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
 					sshagent(['aws-ec2-ssh']) {
 						sh '''
-							ssh -o StrictHostKeyChecking=no ubuntu@13.229.251.34 << EOF
+							ssh -i Jenkins_EC2_Sing.pem ubuntu@13.229.251.34 << EOF
 								echo "$PASS" | docker login -u "$USER" --password-stdin
 
 								mkdir -p ~/devops-deploy && cd ~/devops-deploy
