@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'EC2_PUBLIC_IP', defaultValue: '', description: 'Enter EC2 Public IP')
+    }
+    
     environment {
         DOCKER_IMAGE = 'technicalhrushi/devops-app'
     }
@@ -43,7 +47,7 @@ pipeline {
                 ]) {
                     sh '''
                         chmod 600 "$KEY"
-                        ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@13.229.251.34 <<EOF
+                        ssh -o StrictHostKeyChecking=no -i "$KEY" ubuntu@${EC2_PUBLIC_IP} <<EOF
 echo "$PASS" | docker login -u "$USER" --password-stdin
 mkdir -p ~/devops-deploy && cd ~/devops-deploy
 
