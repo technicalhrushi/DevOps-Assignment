@@ -15,7 +15,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'docker-compose up -d'
-                sh 'sleep 10 && curl -f http://app:3000 || exit 1'
+                sh 'docker compose exec -T app curl -f http://localhost:3000 || exit 1'
             }
         }
 
